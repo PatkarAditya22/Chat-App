@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.pink,
           visualDensity: VisualDensity.adaptivePlatformDensity,
           backgroundColor: Colors.pink,
-          accentColor: Colors.deepPurple,
+          accentColor: Colors.blue,
           accentColorBrightness: Brightness.dark,
           buttonTheme: ButtonTheme.of(context).copyWith(
             buttonColor: Colors.pink,
