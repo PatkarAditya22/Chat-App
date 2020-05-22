@@ -1,11 +1,20 @@
+import 'dart:io';
+
 import 'package:chat_app/widgets/background.dart';
+import 'package:chat_app/widgets/imagepick/image_picker.dart';
 import 'package:flutter/material.dart';
 
 class AuthForm extends StatefulWidget {
-  AuthForm(this.submitFn,this.isload);
+  AuthForm(this.submitFn, this.isload);
   final bool isload;
-  final void Function(String email, String username, String password,
-      bool islogin, BuildContext ctx) submitFn;
+  final void Function(
+    String email,
+    String username,
+    String password,
+    File image,
+    bool islogin,
+    BuildContext ctx,
+  ) submitFn;
 
   @override
   _AuthFormState createState() => _AuthFormState();
@@ -17,10 +26,24 @@ class _AuthFormState extends State<AuthForm> {
   var _userEmail = '';
   var _userName = '';
   var _userPassword = '';
+  File _userImage;
+
+  void pickedImage(File img) {
+    _userImage = img;
+  }
 
   void _trySubmit() {
     final isValid = _formKey.currentState.validate();
     FocusScope.of(context).unfocus();
+
+    if (_userImage == null && !_isLogin) {
+      Scaffold.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please choose an image!'),
+        ),
+      );
+      return;
+    }
 
     if (isValid) {
       _formKey.currentState.save();
@@ -31,6 +54,7 @@ class _AuthFormState extends State<AuthForm> {
         _userEmail.trim(),
         _userName.trim(),
         _userPassword.trim(),
+        _userImage,
         _isLogin,
         context,
       );
@@ -56,9 +80,11 @@ class _AuthFormState extends State<AuthForm> {
                   Image.asset(
                     'assets/collaboration.png',
                     width: MediaQuery.of(context).size.width / 1.5,
-                    height: 200,
+                    height: 150,
                   ),
                   // Image.asset('assets/collaboration.png', width: MediaQuery.of(context).size.width/1.5,),
+                  if (!_isLogin)
+                    ImagePickerUser(pickedImage),
                   TextFormField(
                     key: ValueKey('email'),
                     validator: (value) {
@@ -104,26 +130,25 @@ class _AuthFormState extends State<AuthForm> {
                     },
                   ),
                   SizedBox(height: 12),
-                  if(widget.isload)
-                    CircularProgressIndicator()
-                  ,
-                  if(!widget.isload)
-                  RaisedButton(
-                    child: Text(_isLogin ? 'Login' : 'Signup'),
-                    onPressed: _trySubmit,
-                  ),
-                  if(!widget.isload)
-                  FlatButton(
-                    textColor: Theme.of(context).primaryColor,
-                    child: Text(_isLogin
-                        ? 'Create new account'
-                        : 'I already have an account'),
-                    onPressed: () {
-                      setState(() {
-                        _isLogin = !_isLogin;
-                      });
-                    },
-                  ),
+                  if (widget.isload)
+                    CircularProgressIndicator(),
+                  if (!widget.isload)
+                    RaisedButton(
+                      child: Text(_isLogin ? 'Login' : 'Signup'),
+                      onPressed: _trySubmit,
+                    ),
+                  if (!widget.isload)
+                    FlatButton(
+                      textColor: Theme.of(context).primaryColor,
+                      child: Text(_isLogin
+                          ? 'Create new account'
+                          : 'I already have an account'),
+                      onPressed: () {
+                        setState(() {
+                          _isLogin = !_isLogin;
+                        });
+                      },
+                    ),
                   WavyFooter(),
                   //CirclePink(),
                 ],
